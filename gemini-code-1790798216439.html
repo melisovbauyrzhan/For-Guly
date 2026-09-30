@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOR YOU GULY</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1a0826 0%, #05020a 100%);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Фоны с летающими и мерцающими сердечками */
+    .bg-hearts {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .bg-heart {
+      position: absolute;
+      color: rgba(255, 51, 102, 0.22);
+      font-size: 14px;
+      user-select: none;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(105vh) scale(0.5) rotate(0deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.6;
+      }
+      80% {
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1.2) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Заголовок сверху */
+    .header-text {
+      position: absolute;
+      top: 40px;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px #ff3366, 0 0 20px #ff0055, 0 0 40px #ff0055;
+      z-index: 3;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeInDown 1.2s ease forward 0.3s;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes fadeInDown {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Основной контейнер */
+    .container {
+      position: relative;
+      width: 480px;
+      height: 480px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+      margin-top: 30px;
+    }
+
+    /* Буквы, образующие сердце */
+    .heart-letter {
+      position: absolute;
+      font-size: 18px;
+      font-weight: bold;
+      color: #ff3366;
+      text-shadow: 0 0 8px #ff3366, 0 0 16px #ff0055;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0);
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .heart-letter.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Буква G в центре */
+    .center-letter {
+      position: absolute;
+      font-size: 85px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 15px #ff3366, 0 0 35px #ff0055, 0 0 60px #ff0055;
+      opacity: 0;
+      transform: scale(0.2);
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .center-letter.show {
+      opacity: 1;
+      transform: scale(1);
+      animation: pulse 1.6s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        text-shadow: 0 0 15px #ff3366, 0 0 30px #ff0055;
+      }
+      100% {
+        transform: scale(1.12);
+        text-shadow: 0 0 25px #ff3366, 0 0 50px #ff0055, 0 0 75px #ff0055;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Заголовок сверху -->
+  <div class="header-text">FOR YOU GULY</div>
+
+  <!-- Фон с летающими сердечками -->
+  <div class="bg-hearts" id="bgHearts"></div>
+
+  <!-- Контейнер с большим сердцем -->
+  <div class="container" id="heartContainer">
+    <div class="center-letter" id="centerG">G</div>
+  </div>
+
+  <script>
+    // 1. Создание фоновых летающих сердечек
+    const bgHeartsContainer = document.getElementById('bgHearts');
+    const bgHeartCount = 35;
+
+    for (let i = 0; i < bgHeartCount; i++) {
+      const heart = document.createElement('div');
+      heart.className = 'bg-heart';
+      heart.innerHTML = '♥';
+      heart.style.left = `${Math.random() * 100}%`;
+      heart.style.fontSize = `${Math.random() * 16 + 10}px`;
+      
+      const duration = Math.random() * 8 + 6;
+      const delay = Math.random() * 10;
+      
+      heart.style.animationDuration = `${duration}s`;
+      heart.style.animationDelay = `-${delay}s`;
+      
+      bgHeartsContainer.appendChild(heart);
+    }
+
+    // 2. Построение главного сердца с РАВНОМЕРНЫМ расстоянием между буквами
+    const container = document.getElementById('heartContainer');
+    const centerG = document.getElementById('centerG');
+
+    const basePhrase = "I LOVE YOU ";
+    
+    // Ровно 4 повтора фразы = 44 символа (идеально для равномерной плотности)
+    const totalPoints = basePhrase.length * 4; 
+    let fullText = "";
+    for (let i = 0; i < 4; i++) {
+      fullText += basePhrase;
+    }
+
+    // Параметрическая формула сердца
+    function rawHeartPoint(t, scale = 13.5) {
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+      return { x: x * scale, y: y * scale };
+    }
+
+    // Предварительный расчёт длины контура для равномерного распределения точек
+    const samples = 1000;
+    const pointsTable = [];
+    let totalLength = 0;
+
+    let prevPoint = rawHeartPoint(0);
+    pointsTable.push({ t: 0, dist: 0 });
+
+    for (let i = 1; i <= samples; i++) {
+      // Идем по часовой стрелке от t = 0 до -2*PI
+      const t = - (i / samples) * (2 * Math.PI);
+      const currPoint = rawHeartPoint(t);
+      const dx = currPoint.x - prevPoint.x;
+      const dy = currPoint.y - prevPoint.y;
+      const stepDist = Math.sqrt(dx * dx + dy * dy);
+      
+      totalLength += stepDist;
+      pointsTable.push({ t: t, dist: totalLength });
+      prevPoint = currPoint;
+    }
+
+    // Функция поиска координат t для заданной длины дуги
+    function getTForDistance(targetDist) {
+      for (let i = 0; i < pointsTable.length - 1; i++) {
+        if (pointsTable[i + 1].dist >= targetDist) {
+          const p1 = pointsTable[i];
+          const p2 = pointsTable[i + 1];
+          const factor = (targetDist - p1.dist) / (p2.dist - p1.dist);
+          return p1.t + factor * (p2.t - p1.t);
+        }
+      }
+      return pointsTable[pointsTable.length - 1].t;
+    }
+
+    // Создание элементов букв
+    const letterElements = [];
+    const segmentLength = totalLength / totalPoints;
+
+    for (let i = 0; i < totalPoints; i++) {
+      const targetDist = i * segmentLength;
+      const t = getTForDistance(targetDist);
+      const pos = rawHeartPoint(t);
+
+      const span = document.createElement('span');
+      span.className = 'heart-letter';
+      span.textContent = fullText[i] === ' ' ? '\u00A0' : fullText[i];
+      
+      span.style.left = `calc(50% + ${pos.x}px)`;
+      span.style.top = `calc(50% + ${pos.y}px)`;
+
+      container.appendChild(span);
+      letterElements.push(span);
+    }
+
+    // 3. Анимация прорисовки
+    function animateHeart() {
+      let index = 0;
+      const interval = setInterval(() => {
+        if (index < letterElements.length) {
+          letterElements[index].classList.add('show');
+          index++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            centerG.classList.add('show');
+          }, 300);
+        }
+      }, 70);
+    }
+
+    window.onload = animateHeart;
+  </script>
+</body>
+</html>
